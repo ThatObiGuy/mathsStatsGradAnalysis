@@ -1,5 +1,5 @@
 ---
-title: "Analysis of trends within group selecting 'other' as gender"
+title: "Analysis of trends in pay of newly-graduated maths/stats students"
 author: "Owen F. O'Connor"
 date: "2025-03-14"
 output: html_document
@@ -8,17 +8,16 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ```{r}
 library(tidyverse)
 ```
 
-
 ## Introduction
 
-This analysis focuses on graduates with a Level 8 degree in Natural Sciences, Mathematics, and Statistics, examining trends in salary and prevalence of those who select 'other' for gender over the period captured in the data set.
+This analysis focuses on graduates with a Level 8 degree in Natural Sciences, Mathematics, and Statistics, examining trends in salary of new graduates.
 ```{r}
 glimpse(gradMS)
-head(gradMS)
 ```
 
 ## Including Plots

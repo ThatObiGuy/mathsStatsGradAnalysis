@@ -43,3 +43,28 @@ gradMS_wider_lighter <- na.omit(gradMS_wider)
 
 # very elegant solution to this ^
 # I think now we have our data in forms well suited for answering our questions.
+
+# Let's look at all genders, first year
+gradMS_wider_lighter %>%
+  filter(Gender == "All genders") %>%
+  filter(Years.Since.Graduation == 1) %>%
+  ggplot(aes(x = Graduation.Year, y = `P25 Earnings of Graduates`)) +
+  geom_point()
+# there's a clear positive trend
+
+# what about across all 3 levels of pay?
+gradMS %>%
+  filter(Gender == "All genders") %>%
+  filter(Years.Since.Graduation == 1) |>
+  ggplot(aes(x = Graduation.Year, y = ., colour = Statistic)) +
+  geom_point()
+# pretty damn consistent
+
+# what about across genders?
+gradMS %>%
+  filter(Gender %in% c("Male", "Female")) %>%
+  filter(Years.Since.Graduation == 1) |>
+  ggplot(aes(x = Graduation.Year, y = ., colour = Statistic)) +
+  facet_wrap(~Gender) +
+  geom_point()
+# male appear to be making more than female
