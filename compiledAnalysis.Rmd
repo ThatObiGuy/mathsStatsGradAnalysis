@@ -1,0 +1,86 @@
+---
+title: "Group A - Data Analysis"
+author: "OISIN HEANEY | WARREN LANGRIDGE | OWEN O’CONNOR | DAVID SKERRITT"
+date: "2025"
+output:
+  html_document:
+    theme: cerulean
+    highlight: tango
+    toc: true
+    toc_float: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Packages, results='hide', warning=FALSE}
+library(tidyverse)
+```
+
+# Introduction
+
+A load of words here about into.  
+
+
+# Data adjustments
+
+A load of words here about adjustments.  
+```{r adjustments}
+# code showing adjustments
+```
+
+
+# Analysis
+
+A load of words here about analysis.
+
+## Question 1 - Oisin
+'Question title'
+
+```{r Plot 1 - OISIN HEANEY}
+ggplot()
+```
+
+Oisin's thoughts on this...  
+
+-----
+
+## Question 2 - Warren
+'Question title'
+
+```{r Plot 2 - WARREN LANGRIDGE}
+ggplot()
+```
+
+Warren's thoughts on this...  
+
+-----
+
+## Question 3 - Owen
+'Question title'
+
+```{r Plot 3 - OWEN O’CONNOR}
+ggplot()
+```
+
+Owen's thoughts on this... 
+
+-----
+
+## Question 4 - David
+'Question title'
+
+```{r Plot 4 - DAVID SKERRITT}
+ggplot()
+```
+
+David's thoughts on this... 
+
+-----
+
+# Summary
+
+A load of words here about summary.  
+

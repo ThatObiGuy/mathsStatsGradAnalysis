@@ -66,5 +66,6 @@ gradMS %>%
   filter(Years.Since.Graduation == 1) |>
   ggplot(aes(x = Graduation.Year, y = ., colour = Statistic)) +
   facet_wrap(~Gender) +
-  geom_point()
+  geom_point() +
+  geom_line()
 # male appear to be making more than female
