@@ -1,0 +1,29 @@
+---
+title: "-ADD YOUR TITLE HERE-"
+author: "WARREN LANGRIDGE"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+## Introduction
+
+
+```{r adjustments}
+# Import the data and show any changes you've made to it
+```
+
+## Including Plots
+
+
+```{r myplot}
+# Just code for your plot
+```
+
+# A basic analysis

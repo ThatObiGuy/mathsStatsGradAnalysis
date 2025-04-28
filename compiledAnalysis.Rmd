@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r Packages, results='hide', warning=FALSE}
 library(tidyverse)
+library(paletteer)
+load("gradMS.Rdata")
 ```
 
 # Introduction
@@ -28,7 +30,30 @@ A load of words here about into.
 
 A load of words here about adjustments.  
 ```{r adjustments}
-# code showing adjustments
+# Data cleaning / pre-processing 
+#gradMS[,1] # statistic
+#gradMS[,2] # year
+#gradMS[,3] # gender
+#gradMS[,4] # field of study
+#gradMS[,5] # NFQ Level
+#gradMS[,6] # years since graduation
+#gradMS[,7] # measure of statistic
+
+# field of study and NFQ are irrelevant since they're always the same. We can remove them
+gradMS <- gradMS[,-c(4,5)]
+#gradMS[,1] # statistic
+#gradMS[,2] # year
+#gradMS[,3] # gender
+#gradMS[,4] # years since graduation
+#gradMS[,5] # measure of statistic
+
+gradMS <- gradMS %>%
+  filter(Gender != "Other gender") # this removes 300 rows
+# *there only exists one observations
+# we can't make any meaningful analysis off of one point.
+# I am hence deciding to omit this data
+
+
 ```
 
 
@@ -37,13 +62,28 @@ A load of words here about adjustments.
 A load of words here about analysis.
 
 ## Question 1 - Oisin
-'Question title'
-
+### 'Is the despair of pay between genders closing?'  
+- An analysis of pay by gender in Salary in Natural Sciences, Mathematics and Statistics for level 8 graduates
 ```{r Plot 1 - OISIN HEANEY}
+#gender_pay_gap <- gradMS_gender %>% 
+#pivot_wider(names_from = Gender, values_from = Earnings) %>% 
+#mutate(Gender_Pay_Gap = (Male - Female) / Male * 100) 
+
+#ggplot(gender_pay_gap, aes(x = Graduation.Year, y = Gender_Pay_Gap)) + 
+#geom_point(color = "red", alpha = 0.8) + 
+#geom_smooth(method = "lm", se = FALSE, colour = "black") + 
+#labs(title = "Gender Pay Gap Over Time", 
+#subtitle = " percentage difference in earnings" , 
+#x = "Graduation Year", 
+#y = "Gender Pay Gap (%)") + 
+#theme_minimal() 
 ggplot()
 ```
 
-Oisin's thoughts on this...  
+This one is a bit unclear but essentially I gathered that if the trend line goes below 0 women 
+are making more than men, this makes sense as from messing around with the data it 
+seems men have always generally earned more than women however the difference has 
+been decreasing.   
 
 -----
 
