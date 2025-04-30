@@ -1,6 +1,6 @@
 ---
 title: "Group A - Data Analysis"
-author: "OISIN HEANEY | WARREN LANGRIDGE | OWEN O’CONNOR | DAVID SKERRITT"
+author: "OWEN O’CONNOR | WARREN LANGRIDGE | DAVID SKERRITT | OISIN HEANEY"
 date: "2025"
 output:
   html_document:
@@ -15,7 +15,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r Packages, results='hide', warning=FALSE}
+```{r Packages, results='hide', warning=FALSE, message = FALSE}
 library(tidyverse)
 library(paletteer)
 load("gradMS.Rdata")
@@ -61,7 +61,29 @@ gradMS <- gradMS %>%
 
 A load of words here about analysis.
 
-## Question 1 - Oisin
+## Question 1 - Owen
+'Question title'
+
+```{r Plot 3 - OWEN O’CONNOR}
+ggplot()
+```
+
+Owen's thoughts on this... 
+
+-----
+
+## Question 2 - Warren
+'Question title'
+
+```{r Plot 2 - WARREN LANGRIDGE}
+ggplot()
+```
+
+Warren's thoughts on this...  
+
+-----
+
+## Question 3 - Oisin
 ### 'Is the despair of pay between genders closing?'  
 - An analysis of pay by gender in Salary in Natural Sciences, Mathematics and Statistics for level 8 graduates
 ```{r Plot 1 - OISIN HEANEY}
@@ -84,28 +106,6 @@ This one is a bit unclear but essentially I gathered that if the trend line goes
 are making more than men, this makes sense as from messing around with the data it 
 seems men have always generally earned more than women however the difference has 
 been decreasing.   
-
------
-
-## Question 2 - Warren
-'Question title'
-
-```{r Plot 2 - WARREN LANGRIDGE}
-ggplot()
-```
-
-Warren's thoughts on this...  
-
------
-
-## Question 3 - Owen
-'Question title'
-
-```{r Plot 3 - OWEN O’CONNOR}
-ggplot()
-```
-
-Owen's thoughts on this... 
 
 -----
 
