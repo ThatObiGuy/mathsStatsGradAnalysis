@@ -1,0 +1,105 @@
+---
+title: "Gp"
+output: html_document
+date: "2025-04-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#1
+
+library(readr)
+library(tidyverse)
+library(here)
+library(here)
+glimpse(gradMS)
+dim(gradMS)
+gradMS[,1]
+gradMS[,2]
+gradMS[,3]
+gradMS[,4]
+gradMS[,5]
+gradMS[,6]
+gradMS[,7]
+
+gender_pay_gap <- gradMS_gender %>%
+pivot_wider(names_from = Gender, values_from = Earnings) %>%
+mutate(Gender_Pay_Gap = (Male - Female) / Male * 100)
+
+gradMS %>% filter(Gender == "Other gender")
+gradMS %>% filter(Gender != "Other gender")
+gradMS_wider <- gradMS|>
+pivot_wider(names_from = Statistic, values_from = .)
+gradMS_wider_lighter <- gradMS_wider_lighter %>%
+gradMS_wider_lighter <- gradMS_wider_lighter %>%
+rename(P50 = `P50 Earnings of Graduates`,P25 = `P25 Earnings of Graduates`,P75 = `P75 Earnings of Graduates`)
+
+  
+
+
+
+#Gender pay gap in graduates, comparing male v female 
+ggplot(gradMS_wider_lighter, aes(x = Gender, y = `P50 Earnings of Graduates`, color = Gender)) +
+geom_jitter(width = 0.2, alpha = 0.6, size = 2) +
+stat_summary(fun = mean, geom = "point", shape = 18, size = 4, colour = "black") +
+labs(title = "Gender Pay Gap in Graduate Earnings",
+x = "Gender",
+y = "Earnings") +
+scale_color_manual(values = c("Male" = "blue", "Female" = "red")) +
+theme_minimal(base_size = 14)
+
+ggplot(gradMS_wider_lighter, aes(x = Gender, y = `P50 Earnings of Graduates`, colour = Gender)) +
+geom_jitter(width = 0.2, alpha = 0.8, size = 2) +
+stat_summary(fun = mean, geom = "point", shape = 18, size = 4, color = "black") +
+labs(title = "Gender Pay Comparison",x = "Gender",y = "Median Earnings") +
+scale_color_manual(values = c("Male" = "blue", "Female" = "red")) +
+theme_minimal(base_size = 10)
+
+#Median salary over time, comparing male v female salarys
+
+ggplot(gradMS_wider_lighter, aes(x = Graduation.Year, y = `P50 Earnings of Graduates`, colour = Gender)) +
+geom_point(alpha = 0.8) +
+geom_smooth(method = "lm", se = FALSE) +
+labs(title = "Median Monthly Salary by Gender Over Time",
+y = "Earnings") +
+theme_minimal()
+
+#An Analysis of Pay Gap (Comparing Male and Female) Over Time as a Percentage ratio 
+
+#Adjusting to a percentage
+gender_pay_gap <- gradMS_gender %>%
+pivot_wider(names_from = Gender, values_from = Earnings) %>%
+mutate(Gender_Pay_Gap = (Male - Female) / Male * 100)
+
+ggplot(gender_pay_gap, aes(x = Graduation.Year, y = Gender_Pay_Gap, colour = gender_pay_gap)) +
+geom_jitter(colour = "red", alpha = 0.8) +
+geom_smooth(method = "lm", se = FALSE, colour = "black") +
+labs(title = "Gender Pay Gap Over Time",
+subtitle = " percentage difference in earnings" ,
+x = "Graduation Year",
+y = "Gender Pay Gap (%)") +
+#mean line (always above zero yet slight decline?)
+stat_summary(fun = mean, geom = "line", aes(group = 1), colour = "blue", size = 1.2) + 
+#adjusting ranges
+scale_x_continuous(breaks = seq(min(gender_pay_gap$Graduation.Year), max(gender_pay_gap$Graduation.Year), 1)) 
+theme_minimal()
+
+ggplot(gender_pay_gap, aes(x = Graduation.Year, y = Gender_Pay_Gap, colour = Gender_Pay_Gap)) +
+  geom_point(alpha = 0.8) +
