@@ -1,0 +1,83 @@
+---
+title: "Graduate Earnings Over Time"
+author: "David Skerritt"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+
+```{r adjustments, results='hide'}
+# Import the data and show any changes you've made to it
+
+library(tidyverse)
+
+load("../gradMS.Rdata")
+
+# Data cleaning / pre-processing 
+gradMS[,1] # statistic
+gradMS[,2] # year
+gradMS[,3] # gender
+gradMS[,4] # field of study
+gradMS[,5] # NFQ Level
+gradMS[,6] # years since graduation
+gradMS[,7] # measure of statistic
+
+# field of study and NFQ are irrelevant since they're always the same. We can remove them
+gradMS <- gradMS[,-c(4,5)]
+gradMS[,1] # statistic
+gradMS[,2] # year
+gradMS[,3] # gender
+gradMS[,4] # years since graduation
+gradMS[,5] # measure of statistic
+
+gradMS %>%
+  filter(Gender == "Other gender")
+# there only exists one observations
+# we can't make any meaningful analysis off of one point.
+# I am hence deciding to omit this data
+
+gradMS <- gradMS %>%
+  filter(Gender != "Other gender") # this removes 300 rows
+```
+
+## Including Plots
+
+
+```{r davidsPlot}
+gradMS %>%
+  filter(Gender %in% c("Male", "Female")) %>%   # Keep only Male and Female
+  ggplot(aes(x = cut(Years.Since.Graduation,
+                     breaks = seq(0, 10, by = 2),
+                     labels = c("1–2", "3–4", "5–6", "7–8", "9–10"),
+                     include.lowest = TRUE),
+             y = .,
+             fill = Gender)) +
+  geom_boxplot(position = position_dodge(width = 0.75)) +
+  scale_fill_manual(values = c("Male" = "deepskyblue3", "Female" = "deeppink"))+
+  theme_minimal() +
+  labs(title = "Earnings by Gender and Graduation Year (Grouped Every 2 Years)",
+       x = "Years Since Graduation (Grouped)",
+       y = "Earnings") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+```
+
+# A basic analysis
+
+This plot tracks and displays the difference in earnings for graduates of the mathematical and statistical sciences over a 10 year period. The Years Since Graduation variable from the data set has been modified by grouping every two years together, which is displayed across the x-axis of the plot. The variable Earnings is displayed along the y-axis. The code has been filtered to include only the Male and Female variables in the Gender variable. 
+
+Upon initially viewing the plot, it is clear to see an upward trend in earnings over time across both Male and Female genders. As displayed on each box plot, the medians show an increase across each grouped year. For example, the minimum earnings for Females after 1-2 years is 275.00, while after years 9-10 the minimum is 740.00. A significant increase.
+The interquartile range (spread of earnings) is smaller for newer graduates, however there is a notable increase in the IQR for the later years. Potential reasons for this increase include better access to more senior high paying roles that require more experience.
+
+The next most obvious observation from the plot is the difference in earnings between the Male and Female genders. In the initial years since graduation (year 1-2), the difference in earnings is minimal and not significant. However, as the years progress there is a clear difference in the median earnings between the two sexes.
+
+
+
+
+
+

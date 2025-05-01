@@ -1,6 +1,6 @@
 ---
 title: "Group A - Data Analysis"
-author: "OWEN O’CONNOR | WARREN LANGRIDGE | DAVID SKERRITT | OISIN HEANEY"
+author: "OWEN O’CONNOR | DAVID SKERRITT | WARREN LANGRIDGE | OISIN HEANEY"
 date: "2025"
 output:
   html_document:
@@ -18,7 +18,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r Packages, results='hide', warning=FALSE, message = FALSE}
 library(tidyverse)
 library(paletteer)
-load("gradMS.Rdata")
 ```
 
 # Introduction
@@ -30,6 +29,9 @@ A load of words here about into.
 
 A load of words here about adjustments.  
 ```{r adjustments}
+
+load("gradMS.Rdata")
+
 # Data cleaning / pre-processing 
 #gradMS[,1] # statistic
 #gradMS[,2] # year
@@ -53,7 +55,6 @@ gradMS <- gradMS %>%
 # we can't make any meaningful analysis off of one point.
 # I am hence deciding to omit this data
 
-
 ```
 
 
@@ -62,28 +63,109 @@ gradMS <- gradMS %>%
 A load of words here about analysis.
 
 ## Question 1 - Owen
-'Question title'
+### Analysis of gender pay gap of newly-graduated maths/stats students across different percentiles.
 
-```{r Plot 3 - OWEN O’CONNOR}
-ggplot()
+```{r Question 1 specificDataAdjustments, results='hide'}
+# we think it'd also make sense to pivot this table wider
+# Increases readability and will make ggplots easier
+
+gradMS_wider <- gradMS |> # we use a base pipe here because magrittr pipes play weird with '.'
+  pivot_wider(names_from = Statistic, values_from = .)
+
+# Some of these names are awkward, so we'll simplify them.
+gradMS_wider <- gradMS_wider %>%
+  rename(
+    p25 = `P25 Earnings of Graduates`,
+    p50 = `P50 Earnings of Graduates`,
+    p75 = `P75 Earnings of Graduates`
+  )
+
+gradMS_Q1 <- gradMS_wider %>%
+  filter(Gender != "All genders") %>%
+  filter(Years.Since.Graduation == 1) %>%
+  select(!Years.Since.Graduation) %>%
+  pivot_wider(names_from = Gender, values_from = c(p25, p50, p75)) %>%
+  mutate(
+    Pay.dif.p25 = (p25_Male / p25_Female) - 1,
+    Pay.dif.p50 = (p50_Male / p50_Female) - 1,
+    Pay.dif.p75 = (p75_Male / p75_Female) - 1
+  )
+
+gradMS_Q1_final <- gradMS_Q1 %>%
+  pivot_longer(
+    cols = c(Pay.dif.p25, Pay.dif.p50, Pay.dif.p75),
+    names_to = "Percentile",
+    values_to = "Pay_Ratio"
+  ) %>%
+  # Create factor with levels in desired order (p75 at top, p25 at bottom)
+  mutate(Percentile = factor(Percentile, 
+                             levels = c("Pay.dif.p25", "Pay.dif.p50", "Pay.dif.p75"),
+                             labels = c("75th Percentile", "50th Percentile", "25th Percentile"))) %>%
+  select(Graduation.Year, Percentile, Pay_Ratio)
 ```
 
-Owen's thoughts on this... 
+
+```{r Plot 1 - OWEN O’CONNOR}
+gradMS_Q1_final %>%
+  ggplot(aes(x = Graduation.Year, y = Pay_Ratio, fill = Pay_Ratio > 0)) +
+  geom_bar(stat = "identity") +
+  facet_grid(Percentile ~ ., switch = "y") +
+  scale_fill_manual(values = c("#E7298AFF", "#7570B3FF"), 
+                    name = "Bias", 
+                    labels = c("Female", "Male")) +
+  theme_minimal() +
+  labs(title = "New grad pay diff @ 25th/50th/75th percentile earnings",
+       subtitle = "For new maths/stats graduates",
+       y = "Percentiles",
+       x = "Graduation Year")
+```
+
+Owen's thoughts on this... (pending)
 
 -----
 
-## Question 2 - Warren
-'Question title'
+## Question 2 - David
+### Graduate Earnings Over Time
 
-```{r Plot 2 - WARREN LANGRIDGE}
-ggplot()
+```{r Plot 2 - DAVID SKERRITT, warning=FALSE}
+gradMS %>%
+  filter(Gender %in% c("Male", "Female")) %>%   # Keep only Male and Female
+  ggplot(aes(x = cut(Years.Since.Graduation,
+                     breaks = seq(0, 10, by = 2),
+                     labels = c("1–2", "3–4", "5–6", "7–8", "9–10"),
+                     include.lowest = TRUE),
+             y = .,
+             fill = Gender)) +
+  geom_boxplot(position = position_dodge(width = 0.75)) +
+  scale_fill_manual(values = c("Male" = "deepskyblue3", "Female" = "deeppink"))+
+  theme_minimal() +
+  labs(title = "Earnings by Gender and Graduation Year (Grouped Every 2 Years)",
+       x = "Years Since Graduation (Grouped)",
+       y = "Earnings") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Warren's thoughts on this...  
+This plot tracks and displays the difference in earnings for graduates of the mathematical and statistical sciences over a 10 year period. The Years Since Graduation variable from the data set has been modified by grouping every two years together, which is displayed across the x-axis of the plot. The variable Earnings is displayed along the y-axis. The code has been filtered to include only the Male and Female variables in the Gender variable. 
+
+Upon initially viewing the plot, it is clear to see an upward trend in earnings over time across both Male and Female genders. As displayed on each box plot, the medians show an increase across each grouped year. For example, the minimum earnings for Females after 1-2 years is 275.00, while after years 9-10 the minimum is 740.00. A significant increase.
+The interquartile range (spread of earnings) is smaller for newer graduates, however there is a notable increase in the IQR for the later years. Potential reasons for this increase include better access to more senior high paying roles that require more experience.
+
+The next most obvious observation from the plot is the difference in earnings between the Male and Female genders. In the initial years since graduation (year 1-2), the difference in earnings is minimal and not significant. However, as the years progress there is a clear difference in the median earnings between the two sexes.
 
 -----
 
-## Question 3 - Oisin
+## Question 3 - Warren
+### Graduate Earnings Over Time
+
+```{r Plot 3 - WARREN LANGRIDGE}
+ggplot()
+```
+
+Warren's thoughts on this... 
+
+-----
+
+## Question 4 - Oisin
 ### 'Is the despair of pay between genders closing?'  
 - An analysis of pay by gender in Salary in Natural Sciences, Mathematics and Statistics for level 8 graduates
 ```{r Plot 1 - OISIN HEANEY}
@@ -109,18 +191,6 @@ been decreasing.
 
 -----
 
-## Question 4 - David
-'Question title'
-
-```{r Plot 4 - DAVID SKERRITT}
-ggplot()
-```
-
-David's thoughts on this... 
-
------
-
 # Summary
 
-A load of words here about summary.  
-
+A load of words here about summary. 

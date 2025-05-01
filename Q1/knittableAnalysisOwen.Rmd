@@ -62,7 +62,7 @@ gradMS_wider <- gradMS_wider %>%
 ```
 
 ```{r question-specific adjustments}
-gradMS_Q3 <- gradMS_wider %>%
+gradMS_Q1 <- gradMS_wider %>%
   filter(Gender != "All genders") %>%
   filter(Years.Since.Graduation == 1) %>%
   select(!Years.Since.Graduation) %>%
@@ -73,7 +73,7 @@ gradMS_Q3 <- gradMS_wider %>%
     Pay.dif.p75 = (p75_Male / p75_Female) - 1
   )
 
-gradMS_Q3_final <- gradMS_Q3 %>%
+gradMS_Q1_final <- gradMS_Q1 %>%
   pivot_longer(
     cols = c(Pay.dif.p25, Pay.dif.p50, Pay.dif.p75),
     names_to = "Percentile",
@@ -90,7 +90,7 @@ gradMS_Q3_final <- gradMS_Q3 %>%
 
 
 ```{r myplot}
-gradMS_Q3_final %>%
+gradMS_Q1_final %>%
   ggplot(aes(x = Graduation.Year, y = Pay_Ratio, fill = Pay_Ratio > 0)) +
   geom_bar(stat = "identity") +
   facet_grid(Percentile ~ ., switch = "y") +
