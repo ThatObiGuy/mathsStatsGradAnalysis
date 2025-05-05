@@ -22,104 +22,133 @@ library(paletteer)
 
 # Introduction
 
-A load of words here about into.  
-
+This project explores the gender pay divide among Level 8 graduates in the fields of Natural Sciences, Mathematics, and Statistics in Ireland. Focusing specifically on the salary growth over the course of a career, we analyze how pay disparities manifest at three key stages: the beginning of graduates’ careers, across-career progression, closing with a spotlight on the final years captured within the data. using this CSO data, we examine trends and gaps in salary between male and female graduates. Our analysis uses data visualization techniques learned during ST302 to provide a clearer understanding of one of the stories hidden within the given dataset. 
 
 # Data adjustments
 
-A load of words here about adjustments.  
-```{r adjustments}
+Initially we are given data with data with 12,000 rows(/observations) and 7 columns(/variables).  
+These rows are as follows:  
+
+ - Column 1 - "statistic"  
+ - Column 2 - year  
+ - Column 3 - gender  
+ - Column 4 - field of study  
+ - Column 5 - NFQ Level  
+ - Column 6 - years since graduation  
+ - Column 7 - "measure of statistic"  
+ 
+Since we know all of our data relates to "Salary in Natural Sciences, Mathematics and Statistics for level 8 graduates", we can remove the columns relating to NFQ Level and field of study.  These just hold the same information and so are redundant. They only making our dataset larger, so that it's takes more memory and is more computationally expensive to work with.  Hence after loading in the dataset we remove these columns.  
+
+After this, we also observed that there is only one observation where gender == "Other gender". Since we cannot make any meaningful analysis off of one data point, this is another opportunity for us to save memory and reduce our artificially large dataset.
+
+Finally, there is a huge amount of NA's built into this dataset. The structure leaves spaces for salaries of individuals 5, 6, 7, and so on 'years from graduation', when that data did not exsist at the time of the collection. As a result of this na.omit will give us a much clearer idea of the 'true' dimensions of our data. 
+
+We thought it might also be handy to present the data in a wider format, this is much easier to read - instead of "statistic" and "measure of statistic", we are presented with very clear 25th/50th and 75th percentile earnings for each combination of year/years since graduation and gender combination. +Plus consistent shorter column names makes for easier usage.
+
+There is also adjustments that may need to be made for individual plots but we felt that these adjustments would make the data more suitable for all group members to work with.
+
+```{r universal adjustments}
 
 load("gradMS.Rdata")
 
-# Data cleaning / pre-processing 
-#gradMS[,1] # statistic
-#gradMS[,2] # year
-#gradMS[,3] # gender
-#gradMS[,4] # field of study
-#gradMS[,5] # NFQ Level
-#gradMS[,6] # years since graduation
-#gradMS[,7] # measure of statistic
-
-# field of study and NFQ are irrelevant since they're always the same. We can remove them
-gradMS <- gradMS[,-c(4,5)]
-#gradMS[,1] # statistic
-#gradMS[,2] # year
-#gradMS[,3] # gender
-#gradMS[,4] # years since graduation
-#gradMS[,5] # measure of statistic
+gradMS <- gradMS[,-c(4,5)] # Removes 2 columns / 24,000 cells
 
 gradMS <- gradMS %>%
-  filter(Gender != "Other gender") # this removes 300 rows
-# *there only exists one observations
-# we can't make any meaningful analysis off of one point.
-# I am hence deciding to omit this data
+  filter(Gender != "Other gender") # this removes 300 rows / 1,500 cells
+
+gradMS <- gradMS %>%
+  na.omit() # this removes 405 rows / 2,025 cells
+
+gradMS_wider <- gradMS |> # we use a base pipe here because magrittr pipes play weird with '.'
+  pivot_wider(names_from = Statistic, values_from = .) |> # resulting table is 165 rows x 6 columns
+  rename(
+    year = Graduation.Year,
+    gender = Gender,
+    yearsGrad = Years.Since.Graduation,
+    p25 = `P25 Earnings of Graduates`,
+    p50 = `P50 Earnings of Graduates`,
+    p75 = `P75 Earnings of Graduates`
+  ) |> # consistent informative names.
+  mutate(year = as.factor(year),
+         yearsGrad = as.factor(yearsGrad)) # more appropriate encoding
 
 ```
 
-
 # Analysis
 
-A load of words here about analysis.
+Each contributor has given their interpretation follow their graph. Here we'd like to take the opportunity to acknowledge visualisation decision we've made and applied to all of our plots.
+Also - we have used colours from the 'paired' pallete from color brewer, these colors are distinguishable if the images are desaturated and colourblind safe for Deuteranope, Protanope and Tritanope colourblindness.  
+This was verified @ http://hclwizard.org  
+pink and blue adjacent colors are used to differentiate between male and female as they're intuitive, it's easier for a user to recognize as opposed to rationalize.  
+We've also applied a minimal theme across all plots as if reduces visual noise - reducing the cognitive load on viewers and focusing on attention on what matters.
 
 ## Question 1 - Owen
 ### Analysis of gender pay gap of newly-graduated maths/stats students across different percentiles.
 
 ```{r Question 1 - specificDataAdjustments, results='hide'}
-# we think it'd also make sense to pivot this table wider
-# Increases readability and will make ggplots easier
-
-gradMS_wider <- gradMS |> # we use a base pipe here because magrittr pipes play weird with '.'
-  pivot_wider(names_from = Statistic, values_from = .)
-
-# Some of these names are awkward, so we'll simplify them.
-gradMS_wider <- gradMS_wider %>%
-  rename(
-    p25 = `P25 Earnings of Graduates`,
-    p50 = `P50 Earnings of Graduates`,
-    p75 = `P75 Earnings of Graduates`
-  )
-
+  
 gradMS_Q1 <- gradMS_wider %>%
-  filter(Gender != "All genders") %>%
-  filter(Years.Since.Graduation == 1) %>%
-  select(!Years.Since.Graduation) %>%
-  pivot_wider(names_from = Gender, values_from = c(p25, p50, p75)) %>%
+  filter(gender != "All genders") %>% # We're only interested in the difference, so we do not need the aggregate
+  filter(yearsGrad == 1) %>% # We're only interested in newly graduated individuals (1 year since graduation)
+  select(!yearsGrad) %>% # taking 'all but the yearsGrad' column
+  pivot_wider(names_from = gender, values_from = c(p25, p50, p75)) %>%
   mutate(
-    Pay.dif.p25 = (p25_Male / p25_Female) - 1,
-    Pay.dif.p50 = (p50_Male / p50_Female) - 1,
-    Pay.dif.p75 = (p75_Male / p75_Female) - 1
-  )
+    payDifLower = (p25_Male / p25_Female) - 1,
+    payDifMedian = (p50_Male / p50_Female) - 1,
+    payDifUpper = (p75_Male / p75_Female) - 1
+  ) # Use of a ratio allows for comparison independent of scale.
 
 gradMS_Q1_final <- gradMS_Q1 %>%
   pivot_longer(
-    cols = c(Pay.dif.p25, Pay.dif.p50, Pay.dif.p75),
-    names_to = "Percentile",
-    values_to = "Pay_Ratio"
-  ) %>%
-  # Create factor with levels in desired order (p75 at top, p25 at bottom)
-  mutate(Percentile = factor(Percentile, 
-                             levels = c("Pay.dif.p25", "Pay.dif.p50", "Pay.dif.p75"),
-                             labels = c("75th Percentile", "50th Percentile", "25th Percentile"))) %>%
-  select(Graduation.Year, Percentile, Pay_Ratio)
+    cols = c(payDifLower, payDifMedian, payDifUpper),
+    names_to = "quartile",
+    values_to = "payRatio"
+  ) %>% # Gives us a row for each year's lower/middle/upper quartiles
+  mutate(quartile = factor(quartile, 
+                             levels = c("payDifUpper", "payDifMedian", "payDifLower"),
+                             labels = c("upper quartile", "median", "lower quartile"))) %>%
+  select(year, quartile, payRatio) # Only saving the information necessary for the plot
 ```
 
 ```{r Plot 1 - OWEN O’CONNOR}
+
 gradMS_Q1_final %>%
-  ggplot(aes(x = Graduation.Year, y = Pay_Ratio, fill = Pay_Ratio > 0)) +
+  ggplot(aes(x = year, y = payRatio, fill = payRatio < 0)) +
   geom_bar(stat = "identity") +
-  facet_grid(Percentile ~ ., switch = "y") +
-  scale_fill_manual(values = c("#E7298AFF", "#7570B3FF"), 
-                    name = "Bias", 
-                    labels = c("Female", "Male")) +
-  theme_minimal() +
+  facet_grid(quartile ~ .,
+             labeller = labeller(quartile = c(
+               "payDifLower" = "Lower",
+               "payDifMedian" = "Median",
+               "payDifUpper" = "Upper"
+               )), 
+             switch = "y") +
+  scale_fill_manual(values = c("#1F78B4FF", "#FB9A99FF"),  # Male, Female
+                    name = "Bias",
+                    labels = c("Male", "Female")) +
   labs(title = "New grad pay diff @ 25th/50th/75th percentile earnings",
        subtitle = "For new maths/stats graduates",
-       y = "Percentiles",
-       x = "Graduation Year")
+       y = "",
+       x = "Graduation Year") +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+        strip.text.y.left = element_text(angle = 0, hjust = 1)) # removes measures on y-axis, reducing visual noise
+
 ```
 
-Owen's thoughts on this... (pending)
+This plot illustrates the gender pay gap for recent mathematics and statistics graduates at the 25th, 50th, and 75th earnings percentiles, measured one year after graduation.
+
+Overall, a consistent bias toward male graduates is evident across most years and percentiles, particularly at the 75th percentile, where men consistently earn more than women in the early and later years. The median (50th percentile) also reflects a male pay advantage in most cohorts.
+
+A notable exception occurs around 2015, where the trend temporarily reverses:
+
+- At the 25th percentile, there is a pronounced female advantage, with women earning more than men in two consecutive years.
+
+- This reversal is present to a lesser extent at the median, and absent at the 75th percentile, suggesting the pay gap reversal was concentrated among lower-earning graduates.
+
+By 2018, the male advantage reasserts itself across all percentiles, particularly at the lower end of the payscale.
+
+From this graphic we may gather that there have been short-term changes in salary practices.  
+The persistent bias at the top end informs us to the structural dynamics disproportionately benefiting men in higher-paying positions.
 
 -----
 
@@ -136,15 +165,15 @@ gradMS %>%
              y = .,
              fill = Gender)) +
   geom_boxplot(position = position_dodge(width = 0.75)) +
-  scale_fill_manual(values = c("Male" = "deepskyblue3", "Female" = "deeppink"))+
+  scale_fill_manual(values = c("Male" = "#1F78B4FF", "Female" = "#FB9A99FF"))+
   theme_minimal() +
-  labs(title = "Earnings by Gender and Graduation Year (Grouped Every 2 Years)",
+  labs(title = "Earnings by gender and Graduation Year (Grouped Every 2 Years)",
        x = "Years Since Graduation (Grouped)",
        y = "Earnings") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-This plot tracks and displays the difference in earnings for graduates of the mathematical and statistical sciences over a 10 year period. The Years Since Graduation variable from the data set has been modified by grouping every two years together, which is displayed across the x-axis of the plot. The variable Earnings is displayed along the y-axis. The code has been filtered to include only the Male and Female variables in the Gender variable. 
+This plot tracks and displays the difference in earnings for graduates of the mathematical and statistical sciences over a 10 year period. The Years Since Graduation variable from the data set has been modified by grouping every two years together, which is displayed across the x-axis of the plot. The variable Earnings is displayed along the y-axis. The code has been filtered to include only the Male and Female variables in the gender variable. 
 
 Upon initially viewing the plot, it is clear to see an upward trend in earnings over time across both Male and Female genders. As displayed on each box plot, the medians show an increase across each grouped year. For example, the minimum earnings for Females after 1-2 years is 275.00, while after years 9-10 the minimum is 740.00. A significant increase.
 The interquartile range (spread of earnings) is smaller for newer graduates, however there is a notable increase in the IQR for the later years. Potential reasons for this increase include better access to more senior high paying roles that require more experience.
@@ -158,28 +187,31 @@ The next most obvious observation from the plot is the difference in earnings be
 
 ```{r Question 3 - specificDataAdjustments, results='hide'}
 
-gradMS_wider_lighter <- na.omit(gradMS_wider)
-
-gradMS_pearnings <- gradMS_wider_lighter %>% pivot_longer(cols = starts_with("P"),
-                                                names_to = "pearn",
-                                                values_to = "earnings")
+gradMS_pearnings <- gradMS_wider %>%
+  pivot_longer(cols = starts_with("P"),
+               names_to = "pearn",
+               values_to = "earnings")
 
 ```
 
-```{r Plot 3 - WARREN LANGRIDGE}
-gradMS_pearnings %>% filter(Gender == c("Male", "Female")) %>% 
-  ggplot(aes(x = Years.Since.Graduation, 
+```{r Plot 3 - WARREN LANGRIDGE, message=FALSE}
+
+gradMS_pearnings %>%
+  filter(gender != "All genders") %>% 
+  ggplot(aes(x = yearsGrad, 
              y = earnings,
-             colour = Gender)) +
+             colour = gender)) +
   geom_point(alpha = 0.5) +
-  scale_colour_manual(values = c("lightblue","pink")) +
-  geom_smooth(se =F, method = "lm", 
-              alpha = 1,
-              size = 1.3) +
+  scale_colour_manual(values = c("#1F78B4FF","#FB9A99FF")) +
+  geom_smooth(aes(group = gender),
+              se = F,
+              method = "lm") +
   facet_wrap(vars(pearn)) +
-  labs(title = "The Growth Rate of Earnings Between Genders Across All Pay Levels",
+  labs(title = "The Growth Rate of Earnings Between genders Across All Pay Levels",
        x = "Years Since Graduation",
-       y = "Earnings") 
+       y = "Earnings") +
+  theme_minimal()
+
 ```
 
 This graph illustrates the growth rate of earnings between male and female graduates across the 25th, 50th, and 75th percentiles over a ten-year period post-graduation. 
@@ -198,31 +230,23 @@ So we can see not only are males earning more, their earnings are growing faster
 -----
 
 ## Question 4 - Oisin
-### 'Is the despair of pay between genders closing?'  
-- An analysis of pay by gender in Salary in Natural Sciences, Mathematics and Statistics for level 8 graduates
-```{r Plot 1 - OISIN HEANEY}
-#gender_pay_gap <- gradMS_gender %>% 
-#pivot_wider(names_from = Gender, values_from = Earnings) %>% 
-#mutate(Gender_Pay_Gap = (Male - Female) / Male * 100) 
+### Closer look at gap further along in career
 
-#ggplot(gender_pay_gap, aes(x = Graduation.Year, y = Gender_Pay_Gap)) + 
-#geom_point(color = "red", alpha = 0.8) + 
-#geom_smooth(method = "lm", se = FALSE, colour = "black") + 
-#labs(title = "Gender Pay Gap Over Time", 
-#subtitle = " percentage difference in earnings" , 
-#x = "Graduation Year", 
-#y = "Gender Pay Gap (%)") + 
-#theme_minimal() 
+```{r Plot 1 - OISIN HEANEY}
+
 ggplot()
 ```
 
-This one is a bit unclear but essentially I gathered that if the trend line goes below 0 women 
-are making more than men, this makes sense as from messing around with the data it 
-seems men have always generally earned more than women however the difference has 
-been decreasing.   
+something about further deviation... 
 
 -----
 
 # Summary
 
-A load of words here about summary. 
+From the above analysis it is clear that there a pronounced pay gap between Males and Females, favoring Males across all percentiles.
+
+As evidenced in question 1 (Owen), the pay gap is prevalent in the immediate years following graduation, particularly at the 75th percentile. There is a brief period where this trend reverses, however it is short lived and the Male advantage reestablishes itself.
+Question 3 (Warren) displays this trend by plotting the growth rate across both genders, revealing that Males not only earn more than there Female counterparts, but that their rate of earnings increase faster over time.
+Plot 4 (Oisin) reveals the pay gap in later years since graduation.
+This fact if further shown in Plot 2 (David) where there is a clear difference in median earnings from years 3 to 10, with earnings bias towards Males. From this plot it is also clear that earnings substantially increase over the 10 year period for both genders.
+

@@ -91,6 +91,7 @@ gradMS_Q1_final <- gradMS_Q1 %>%
 
 ```{r myplot}
 gradMS_Q1_final %>%
+  mutate(Graduation.Year = as.factor(Graduation.Year)) %>%
   ggplot(aes(x = Graduation.Year, y = Pay_Ratio, fill = Pay_Ratio > 0)) +
   geom_bar(stat = "identity") +
   facet_grid(Percentile ~ ., switch = "y") +
@@ -98,10 +99,23 @@ gradMS_Q1_final %>%
                     name = "Bias", 
                     labels = c("Female", "Male")) +
   theme_minimal() +
-  labs(title = "New grad pay diff @ 25th/50th/75th percentile earnings",
+  labs(title = "Gender based pay diff @ 25th/50th/75th percentile earnings",
        subtitle = "For new maths/stats graduates",
        y = "Percentiles",
        x = "Graduation Year")
 ```
 
-This plot shows clearly how the pay gap has evolved over time for maths/stats new grads across different salary percentiles.  Just looking at the first two years you one can observe how there was no difference at the lower-end of the payscale, there is a clear bias towards males at the median pay, and this is even more pronounced at the 75th percentile.  Then from this point it appears to flip, where the greater gap appears at the 25th percentile, before flipping altogether. around 10xx we can see how the market shows a greater salary bias towards females. This is pronounced at the 25th percentile, lesser at the median, and reflected in no bias at the upper percentile. This trend is short-lived though as the bias quickly returns to males and records particularly strong in 20xx.
+This plot illustrates the gender pay gap for recent mathematics and statistics graduates at the 25th, 50th, and 75th earnings percentiles, measured one year after graduation.
+
+Overall, a consistent bias toward male graduates is evident across most years and percentiles, particularly at the 75th percentile, where men consistently earn more than women in the early and later years. The median (50th percentile) also reflects a male pay advantage in most cohorts.
+
+A notable exception occurs around 2015, where the trend temporarily reverses:
+
+- At the 25th percentile, there is a pronounced female advantage, with women earning more than men in two consecutive years.
+
+- This reversal is present to a lesser extent at the median, and absent at the 75th percentile, suggesting the pay gap reversal was concentrated among lower-earning graduates.
+
+By 2018, the male advantage reasserts itself across all percentiles, particularly at the lower end of the payscale.
+
+From this graphic we may gather that there have been short-term changes in salary practices.  
+The persistent bias at the top end informs us to the structural dynamics disproportionately benefiting men in higher-paying positions.

@@ -69,8 +69,10 @@ gradMS_Q3 <- gradMS_wider %>%
     Pay.dif.p75 = (p75_Male / p75_Female) - 1
   )
 
-# We shall use the RColorBrewer::Dark2 colour package
+# We shall use the RColorBrewer::Paired colour pallete
 paletteer_d("RColorBrewer::Dark2")
+paletteer_d("RColorBrewer::Set1")
+paletteer_d("RColorBrewer::Paired")
 
 # This plot gives an idea of how we would like our final plot to appear.
 gradMS_Q3 %>%
@@ -93,7 +95,7 @@ gradMS_Q3_final <- gradMS_Q3 %>%
   ) %>%
   # Create factor with levels in desired order (p75 at top, p25 at bottom)
   mutate(Percentile = factor(Percentile, 
-                             levels = c("Pay.dif.p25", "Pay.dif.p50", "Pay.dif.p75"),
+                             levels = c("Pay.dif.p75", "Pay.dif.p50", "Pay.dif.p25"),
                              labels = c("75th Percentile", "50th Percentile", "25th Percentile"))) %>%
   select(Graduation.Year, Percentile, Pay_Ratio)
 
