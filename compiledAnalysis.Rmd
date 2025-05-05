@@ -17,6 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r Packages, results='hide', warning=FALSE, message = FALSE}
 library(tidyverse)
+library(plotly)
+library(ggiraph)
 library(paletteer)
 ```
 
@@ -88,8 +90,8 @@ We've also applied a minimal theme across all plots as if reduces visual noise -
 ```{r Question 1 - specificDataAdjustments, results='hide'}
   
 gradMS_Q1 <- gradMS_wider %>%
-  filter(gender != "All genders") %>% # We're only interested in the difference, so we do not need the aggregate
-  filter(yearsGrad == 1) %>% # We're only interested in newly graduated individuals (1 year since graduation)
+  filter(gender != "All genders") %>% # We're only interested in the difference
+  filter(yearsGrad == 1) %>% # We're only interested in newly grads
   select(!yearsGrad) %>% # taking 'all but the yearsGrad' column
   pivot_wider(names_from = gender, values_from = c(p25, p50, p75)) %>%
   mutate(
@@ -108,13 +110,19 @@ gradMS_Q1_final <- gradMS_Q1 %>%
                              levels = c("payDifUpper", "payDifMedian", "payDifLower"),
                              labels = c("upper quartile", "median", "lower quartile"))) %>%
   select(year, quartile, payRatio) # Only saving the information necessary for the plot
+
+gradMS_Q1_final <- gradMS_Q1_final %>%
+  mutate(tooltip_text = paste("Ratio:", round(payRatio, 2))) # Added for interactivity
 ```
 
 ```{r Plot 1 - OWEN O’CONNOR}
 
-gradMS_Q1_final %>%
+p1 <- gradMS_Q1_final %>%
   ggplot(aes(x = year, y = payRatio, fill = payRatio < 0)) +
-  geom_bar(stat = "identity") +
+  geom_bar_interactive(
+    stat = "identity",
+    aes(tooltip = tooltip_text)
+  ) +
   facet_grid(quartile ~ .,
              labeller = labeller(quartile = c(
                "payDifLower" = "Lower",
@@ -131,7 +139,11 @@ gradMS_Q1_final %>%
        x = "Graduation Year") +
   theme_minimal() +
   theme(axis.text.y = element_blank(),
-        strip.text.y.left = element_text(angle = 0, hjust = 1)) # removes measures on y-axis, reducing visual noise
+        strip.text.y.left = element_text(angle = 0, hjust = 1))
+# removes measures on y-axis, reducing visual noise
+
+girafe(ggobj = p1) |>
+  girafe_options(opts_sizing(rescale = TRUE, width = .75))
 
 ```
 
