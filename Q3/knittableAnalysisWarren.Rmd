@@ -1,5 +1,5 @@
 ---
-title: "-ADD YOUR TITLE HERE-"
+title: "Graduate Earnings Over Time"
 author: "WARREN LANGRIDGE"
 output: html_document
 ---
@@ -8,7 +8,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 library(tidyverse)
 ```
 
@@ -16,14 +16,51 @@ library(tidyverse)
 
 
 ```{r adjustments}
-# Import the data and show any changes you've made to it
+
+load("../gradMS.Rdata")
+
+gradMS <- gradMS %>%
+  filter(Gender != "Other gender") 
+
+gradMS_wider <- gradMS |>
+  pivot_wider(names_from = Statistic, values_from = .)
+
+gradMS_wider_lighter <- na.omit(gradMS_wider)
+
+gradMS_pearnings <- gradMS_wider_lighter %>% pivot_longer(cols = starts_with("P"),
+                                                names_to = "pearn",
+                                                values_to = "earnings")
+
 ```
 
 ## Including Plots
 
 
 ```{r myplot}
-# Just code for your plot
+gradMS_pearnings %>% filter(Gender == c("Male", "Female")) %>% 
+  ggplot(aes(x = Years.Since.Graduation, 
+             y = earnings,
+             colour = Gender)) +
+  geom_point(alpha = 0.5) +
+  scale_colour_manual(values = c("lightblue","pink")) +
+  geom_smooth(se =F, method = "lm", 
+              alpha = 1,
+              size = 1.3) +
+  facet_wrap(vars(pearn)) +
+  labs(title = "The Growth Rate of Earnings Between Genders Across All Pay Levels",
+       x = "Years Since Graduation",
+       y = "Earnings")
 ```
 
-# A basic analysis
+This graph illustrates the growth rate of earnings between male and female graduates across the 25th, 50th, and 75th percentiles over a ten-year period post-graduation. 
+I created this visualization to analyse the question, is the growth rate of earnings the same for university graduates of differing genders? 
+What we see is a consistent pattern: male graduates tend to experience steeper income growth than their female counterparts, regardless of whether they start in the lower, middle, or upper end of the earnings distribution.
+At every level, 0 years after graduation, Males and Females seem to have the same earnings, as time progresses Males earn more 
+
+For the P25 Level the growth rate is faster for males but relatively not by much 
+
+For the P50 level the growth rate is steeper than the P25 level 
+
+For the P75 level the growth rate is much steeper than the other P-levels, and every year after 2.5 years we can see a gap between the genders.  
+
+So we can see not only are males earning more, their earnings are growing faster at every pay level

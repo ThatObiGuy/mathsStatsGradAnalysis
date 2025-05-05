@@ -81,7 +81,7 @@ gradMS_Q1_final <- gradMS_Q1 %>%
   ) %>%
   # Create factor with levels in desired order (p75 at top, p25 at bottom)
   mutate(Percentile = factor(Percentile, 
-                             levels = c("Pay.dif.p25", "Pay.dif.p50", "Pay.dif.p75"),
+                             levels = c("Pay.dif.p75", "Pay.dif.p50", "Pay.dif.p25"),
                              labels = c("75th Percentile", "50th Percentile", "25th Percentile"))) %>%
   select(Graduation.Year, Percentile, Pay_Ratio)
 ```
@@ -104,4 +104,4 @@ gradMS_Q1_final %>%
        x = "Graduation Year")
 ```
 
-Here I should add an analysis of the plot. and probably improve it first.
+This plot shows clearly how the pay gap has evolved over time for maths/stats new grads across different salary percentiles.  Just looking at the first two years you one can observe how there was no difference at the lower-end of the payscale, there is a clear bias towards males at the median pay, and this is even more pronounced at the 75th percentile.  Then from this point it appears to flip, where the greater gap appears at the 25th percentile, before flipping altogether. around 10xx we can see how the market shows a greater salary bias towards females. This is pronounced at the 25th percentile, lesser at the median, and reflected in no bias at the upper percentile. This trend is short-lived though as the bias quickly returns to males and records particularly strong in 20xx.
