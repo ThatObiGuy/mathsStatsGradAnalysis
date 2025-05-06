@@ -170,19 +170,20 @@ The persistent bias at the top end informs us to the structural dynamics disprop
 ```{r Plot 2 - DAVID SKERRITT, warning=FALSE}
 gradMS %>%
   filter(Gender %in% c("Male", "Female")) %>%   # Keep only Male and Female
-  ggplot(aes(x = cut(Years.Since.Graduation,
+  ggplot(aes(x = cut(Years.Since.Graduation,     # Divide years since grad into subdivisions with cut function
                      breaks = seq(0, 10, by = 2),
                      labels = c("1–2", "3–4", "5–6", "7–8", "9–10"),
                      include.lowest = TRUE),
              y = .,
              fill = Gender)) +
-  geom_boxplot(position = position_dodge(width = 0.75)) +
-  scale_fill_manual(values = c("Male" = "#1F78B4FF", "Female" = "#FB9A99FF"))+
+  geom_boxplot(position = position_dodge(width = 0.75)) + # side by side boxplots
+  scale_fill_manual(values = c("Male" = "#7570B3FF", "Female" = "#E7298AFF"))+
   theme_minimal() +
   labs(title = "Earnings by gender and Graduation Year (Grouped Every 2 Years)",
        x = "Years Since Graduation (Grouped)",
        y = "Earnings") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 ```
 
 This plot tracks and displays the difference in earnings for graduates of the mathematical and statistical sciences over a 10 year period. The Years Since Graduation variable from the data set has been modified by grouping every two years together, which is displayed across the x-axis of the plot. The variable Earnings is displayed along the y-axis. The code has been filtered to include only the Male and Female variables in the gender variable. 
@@ -242,14 +243,54 @@ So we can see not only are males earning more, their earnings are growing faster
 -----
 
 ## Question 4 - Oisin
-### Closer look at gap further along in career
+### Spotlight on gender pay gap later on in graduates careers (5-10 years post graduation)
 
-```{r Plot 1 - OISIN HEANEY}
+```{r Question 4 - specificDataAdjustments, results='hide'}
+gradMS %>% filter(Gender == "Other gender")
+gradMS %>% filter(Gender != "Other gender")
+gradMS_wider <- gradMS|>
+pivot_wider(names_from = Statistic, values_from = .)
+gradMS_wider_lighter <-  na.omit(gradMS_wider)
 
-ggplot()
+
+gradMS_gender <- gradMS_wider_lighter %>%
+filter(Gender %in% c("Male", "Female")) %>%  
+select(Graduation.Year, Gender, Years.Since.Graduation, 
+`P25 Earnings of Graduates`, `P50 Earnings of Graduates`, 
+`P75 Earnings of Graduates`) %>%
+pivot_longer(cols = starts_with("P"), names_to = "Earnings_Type", values_to = "Earnings") %>%
+pivot_wider(names_from = Gender, values_from = Earnings)
+
+
+#Adjusting to a percentage
+gender_pay_gap <- gradMS_gender %>%
+mutate(Gender_Pay_Gap = (Male - Female) / Male * 100)
+
+#Adjusting to only 5-10 years post grad
+pay_gap_later <- gender_pay_gap %>%
+filter(Years.Since.Graduation >= 5 & Years.Since.Graduation <= 10)
 ```
 
-something about further deviation... 
+```{r Plot 4 - OISIN HEANEY}
+
+p4 <- ggplot(pay_gap_later, aes(x = Years.Since.Graduation, y = Gender_Pay_Gap, colour = "#FB9A99FF")) +
+  geom_jitter(colour = "#FB9A99FF", alpha = 0.8) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black") +
+  labs(title = "Gender Pay Gap as a percentage ratio 5-10 years post graduation",
+       subtitle = " percentage difference in earnings" ,
+       x = "Years since graduation",
+       y = "Gender Pay Gap (%)") +
+  #mean line 
+  stat_summary(fun = mean, geom = "line", aes(group = 1), colour = "#1F78B4FF", linewidth = 1.2) + 
+  #adjusting ranges
+  scale_x_continuous(breaks = seq(5, 10, 1)) +
+  theme_minimal()
+
+ggplotly(p4)
+
+```
+
+This plot illustrates the gender pay gap comparing males and females who have graduated 5 to 10 years ago, providing a valuable insight into the pay gap later on in the career of graduates. From producing and analysing this plot it can be seen that the gender pay gap increases with males earning more than females as careers progress, ranging from a <1 percent difference to a >15 percent difference. This gradual increase suggests that differences in pay may not only be consistent but also grow with time , showcasing gender based pay inequalities extending past entry level roles.
 
 -----
 
