@@ -120,7 +120,7 @@ gradMS_Q1_final <- gradMS_Q1_final %>%
 ```
 
 Question 1 plot:  
-```{r Plot 1 - OWEN O’CONNOR}
+```{r Plot 1 - OWEN O’CONNOR, fig.cap = "Analysis of gender pay gap of newly-graduated maths/stats students across different percentiles."}
 
 p1 <- gradMS_Q1_final %>%
   ggplot(aes(x = year, y = payRatio, fill = payRatio < 0)) +
@@ -170,10 +170,10 @@ The persistent bias at the top end informs us to the structural dynamics disprop
 -----
 
 ## Question 2 - David
-### Graduate Earnings Over Time
+### Tracking graduate earnings progression over time by gender
 
 Question 2 plot:  
-```{r Plot 2 - DAVID SKERRITT, warning=FALSE}
+```{r Plot 2 - DAVID SKERRITT, warning=FALSE, fig.cap = "Tracking graduate earnings progression over time by gender"}
 gradMS %>%
   filter(Gender %in% c("Male", "Female")) %>%   # Keep only Male and Female
   ggplot(aes(x = cut(Years.Since.Graduation,     # Divide years since grad into subdivisions with cut function
@@ -202,7 +202,7 @@ The next most obvious observation from the plot is the difference in earnings be
 -----
 
 ## Question 3 - Warren
-### Graduate Earnings Over Time
+### Examining comparative growth rates of earnings between genders across all pay levels
 
 Question 3 specific adjustments:  
 ```{r Question 3 - specificDataAdjustments, results='hide'}
@@ -216,7 +216,7 @@ gradMS_long <- gradMS_wider %>%
 ```
 
 Question 3 plot:  
-```{r Plot 3 - WARREN LANGRIDGE, message=FALSE}
+```{r Plot 3 - WARREN LANGRIDGE, message=FALSE, fig.cap = "Examining comparative growth rates of earnings between genders across all pay levels"}
 
 q3_plot <- gradMS_long %>%
   ggplot(aes(x = yearsGrad, y = earnings, color = gender)) +
@@ -258,7 +258,7 @@ So we can see not only are males earning more, their earnings are growing faster
 ### Spotlight on gender pay gap later on in graduates careers (5-10 years post graduation)
 
 Question 4 specific adjustments:  
-```{r Question 4 - specificDataAdjustments, results='hide'}
+```{r Question 4 - specificDataAdjustments, results='hide', fig.cap = "Spotlight on gender pay gap later on in graduates careers (5-10 years post graduation)"}
 
 pay_gap_later <- gradMS_wider %>%
   filter(gender != "All genders") %>%
