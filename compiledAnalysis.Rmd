@@ -4,6 +4,7 @@ author: "OWEN O’CONNOR | DAVID SKERRITT | WARREN LANGRIDGE | OISIN HEANEY"
 date: "2025"
 output:
   html_document:
+    code_folding: hide
     theme: cerulean
     highlight: tango
     toc: true
@@ -15,6 +16,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Necessary Packages:  
 ```{r Packages, results='hide', warning=FALSE, message = FALSE}
 library(tidyverse)
 library(plotly)
@@ -49,6 +51,7 @@ We thought it might also be handy to present the data in a wider format, this is
 
 There is also adjustments that may need to be made for individual plots but we felt that these adjustments would make the data more suitable for all group members to work with.
 
+Universal adjustments:  
 ```{r universal adjustments}
 
 load("gradMS.Rdata")
@@ -87,6 +90,7 @@ We've also applied a minimal theme across all plots as if reduces visual noise -
 ## Question 1 - Owen
 ### Analysis of gender pay gap of newly-graduated maths/stats students across different percentiles.
 
+Question 1 specific adjustments:  
 ```{r Question 1 - specificDataAdjustments, results='hide'}
   
 gradMS_Q1 <- gradMS_wider %>%
@@ -115,6 +119,7 @@ gradMS_Q1_final <- gradMS_Q1_final %>%
   mutate(tooltip_text = paste("Ratio:", round(payRatio, 2))) # Added for interactivity
 ```
 
+Question 1 plot:  
 ```{r Plot 1 - OWEN O’CONNOR}
 
 p1 <- gradMS_Q1_final %>%
@@ -167,6 +172,7 @@ The persistent bias at the top end informs us to the structural dynamics disprop
 ## Question 2 - David
 ### Graduate Earnings Over Time
 
+Question 2 plot:  
 ```{r Plot 2 - DAVID SKERRITT, warning=FALSE}
 gradMS %>%
   filter(Gender %in% c("Male", "Female")) %>%   # Keep only Male and Female
@@ -177,7 +183,7 @@ gradMS %>%
              y = .,
              fill = Gender)) +
   geom_boxplot(position = position_dodge(width = 0.75)) + # side by side boxplots
-  scale_fill_manual(values = c("Male" = "#7570B3FF", "Female" = "#E7298AFF"))+
+  scale_fill_manual(values = c("Male" = "#1F78B4FF", "Female" = "#FB9A99FF"))+
   theme_minimal() +
   labs(title = "Earnings by gender and Graduation Year (Grouped Every 2 Years)",
        x = "Years Since Graduation (Grouped)",
@@ -198,33 +204,39 @@ The next most obvious observation from the plot is the difference in earnings be
 ## Question 3 - Warren
 ### Graduate Earnings Over Time
 
+Question 3 specific adjustments:  
 ```{r Question 3 - specificDataAdjustments, results='hide'}
 
-gradMS_pearnings <- gradMS_wider %>%
-  pivot_longer(cols = starts_with("P"),
-               names_to = "pearn",
+gradMS_long <- gradMS_wider %>%
+  filter(gender %in% c("Male", "Female")) %>%
+  pivot_longer(cols = c(p25, p50, p75),
+               names_to = "percentile",
                values_to = "earnings")
 
 ```
 
+Question 3 plot:  
 ```{r Plot 3 - WARREN LANGRIDGE, message=FALSE}
 
-gradMS_pearnings %>%
-  filter(gender != "All genders") %>% 
-  ggplot(aes(x = yearsGrad, 
-             y = earnings,
-             colour = gender)) +
-  geom_point(alpha = 0.5) +
-  scale_colour_manual(values = c("#1F78B4FF","#FB9A99FF")) +
-  geom_smooth(aes(group = gender),
-              se = F,
-              method = "lm") +
-  facet_wrap(vars(pearn)) +
-  labs(title = "The Growth Rate of Earnings Between genders Across All Pay Levels",
-       x = "Years Since Graduation",
-       y = "Earnings") +
-  theme_minimal()
+q3_plot <- gradMS_long %>%
+  ggplot(aes(x = yearsGrad, y = earnings, color = gender)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(aes(group = gender), method = "lm", se = FALSE) +
+  facet_wrap(~percentile, scales = "free_y", labeller = as_labeller(c(
+    p25 = "25th Percentile", p50 = "Median", p75 = "75th Percentile"
+  ))) +
+  scale_color_manual(values = c("Male" = "#1F78B4", "Female" = "#FB9A99")) +
+  labs(
+    title = "Earnings Growth Over Time by Gender and Percentile",
+    subtitle = "Linear trends across 25th, 50th, and 75th percentiles",
+    x = "Years Since Graduation",
+    y = "Earnings (€)",
+    color = "Gender"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 
+ggplotly(q3_plot)
 ```
 
 This graph illustrates the growth rate of earnings between male and female graduates across the 25th, 50th, and 75th percentiles over a ten-year period post-graduation. 
@@ -245,35 +257,29 @@ So we can see not only are males earning more, their earnings are growing faster
 ## Question 4 - Oisin
 ### Spotlight on gender pay gap later on in graduates careers (5-10 years post graduation)
 
+Question 4 specific adjustments:  
 ```{r Question 4 - specificDataAdjustments, results='hide'}
-gradMS %>% filter(Gender == "Other gender")
-gradMS %>% filter(Gender != "Other gender")
-gradMS_wider <- gradMS|>
-pivot_wider(names_from = Statistic, values_from = .)
-gradMS_wider_lighter <-  na.omit(gradMS_wider)
 
+pay_gap_later <- gradMS_wider %>%
+  filter(gender != "All genders") %>%
+  pivot_longer(cols = c(p25, p50, p75),
+               names_to = "percentile",
+               values_to = "earnings") %>%
+  pivot_wider(names_from = gender, values_from = earnings) %>%
+  mutate(
+    genderGap = (Male - Female) / Male * 100,
+    percentile = factor(percentile, levels = c("p25", "p50", "p75"),
+                        labels = c("25th", "50th", "75th")),
+    yearsGrad = as.numeric(as.character(yearsGrad))  # for filtering
+  ) %>%
+  filter(yearsGrad >= 5 & yearsGrad <= 10)
 
-gradMS_gender <- gradMS_wider_lighter %>%
-filter(Gender %in% c("Male", "Female")) %>%  
-select(Graduation.Year, Gender, Years.Since.Graduation, 
-`P25 Earnings of Graduates`, `P50 Earnings of Graduates`, 
-`P75 Earnings of Graduates`) %>%
-pivot_longer(cols = starts_with("P"), names_to = "Earnings_Type", values_to = "Earnings") %>%
-pivot_wider(names_from = Gender, values_from = Earnings)
-
-
-#Adjusting to a percentage
-gender_pay_gap <- gradMS_gender %>%
-mutate(Gender_Pay_Gap = (Male - Female) / Male * 100)
-
-#Adjusting to only 5-10 years post grad
-pay_gap_later <- gender_pay_gap %>%
-filter(Years.Since.Graduation >= 5 & Years.Since.Graduation <= 10)
 ```
 
-```{r Plot 4 - OISIN HEANEY}
+Question 4 plot:  
+```{r Plot 4 - OISIN HEANEY, message=FALSE}
 
-p4 <- ggplot(pay_gap_later, aes(x = Years.Since.Graduation, y = Gender_Pay_Gap, colour = "#FB9A99FF")) +
+p4 <- ggplot(pay_gap_later, aes(x = yearsGrad, y = genderGap, colour = "#FB9A99FF")) +
   geom_jitter(colour = "#FB9A99FF", alpha = 0.8) +
   geom_smooth(method = "lm", se = FALSE, colour = "black") +
   labs(title = "Gender Pay Gap as a percentage ratio 5-10 years post graduation",
