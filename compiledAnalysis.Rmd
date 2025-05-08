@@ -279,7 +279,7 @@ pay_gap_later <- gradMS_wider %>%
 Question 4 plot:  
 ```{r Plot 4 - OISIN HEANEY, message=FALSE}
 
-p4 <- ggplot(pay_gap_later, aes(x = yearsGrad, y = genderGap, colour = "#FB9A99FF")) +
+p4 <- ggplot(pay_gap_later, aes(x = yearsGrad, y = genderGap)) +
   geom_jitter(colour = "#FB9A99FF", alpha = 0.8) +
   geom_smooth(method = "lm", se = FALSE, colour = "black") +
   labs(title = "Gender Pay Gap as a percentage ratio 5-10 years post graduation",
@@ -308,4 +308,13 @@ As evidenced in question 1 (Owen), the pay gap is prevalent in the immediate yea
 Question 3 (Warren) displays this trend by plotting the growth rate across both genders, revealing that Males not only earn more than there Female counterparts, but that their rate of earnings increase faster over time.
 Plot 4 (Oisin) reveals the pay gap in later years since graduation.
 This fact if further shown in Plot 2 (David) where there is a clear difference in median earnings from years 3 to 10, with earnings bias towards Males. From this plot it is also clear that earnings substantially increase over the 10 year period for both genders.
+
+-----
+
+##### Responsibility 
+
+I, Owen F. O'Connor, had primary responsibility for the material in Question 1, interactivity and compiling work.  
+I, David Skerritt, had primary responsibility for the material in Question 2 and summary.  
+I, Warren Langridge, had primary responsibility for the material in Question 3.  
+I, Oisin Heaney, had primary responsibility for the material in Question 4.  
 
